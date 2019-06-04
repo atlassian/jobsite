@@ -23,7 +23,7 @@ async function findWorkspaces(pattern) {
   return wsGlobs ? filterWorkspaces(pattern) : expandWorkspaces(pattern || ".");
 }
 
-// Returns the defined workspaces.
+// Returns an array of the defined workspaces or null if none are specified.
 async function getWorkspaces() {
   const search = await cosmiconfig("workspaces").search();
   return search ? search.config : null;

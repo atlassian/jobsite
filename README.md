@@ -51,3 +51,52 @@ $ jobsite run -w "packages/*" -- ls -la
 
 _It's recommended you use `--` so that you can pass arguments to the command you
 want to run._
+
+## API
+
+You can also use `jobsite` as a module.
+
+### `expandWorkspaces(wsGlobs)`
+
+> Expands the workspace globs into relative directory paths.
+
+```js
+const { expandWorkspaces } = require("jobsite");
+
+// ["packages/a", "packages/b"]
+expandWorkspaces("packages/*");
+```
+
+### `async function filterWorkspaces(pattern)`
+
+> Filters workspaces that match the specified pattern.
+
+```js
+const { filterWorkspaces } = require("jobsite");
+
+// ["packages/a"]
+filterWorkspaces("packages/a");
+```
+
+### `async function findWorkspaces(pattern)`
+
+> Finds workspaces that match the given pattern. If no workspaces are defined,
+> the pattern is used to glob for directories.
+
+```js
+const { findWorkspaces } = require("jobsite");
+
+// ["packages/a", "packages/b"]
+findWorkspaces("packages/*");
+```
+
+### `async function getWorkspaces()`
+
+> Returns an array of the defined workspaces or null if none are specified.
+
+```js
+const { getWorkspaces } = require("jobsite");
+
+// ["packages/*"]
+getWorkspaces();
+```
