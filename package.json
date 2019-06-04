@@ -1,7 +1,7 @@
 {
   "name": "jobsite",
   "version": "0.0.1",
-  "description": "",
+  "description": "Tools for working with workspaces as defined by Yarn, Bolt, Lerna, etc.",
   "bin": "bin.js",
   "main": "index.js",
   "scripts": {

@@ -28,12 +28,10 @@ function randomColor() {
   return colors[Math.floor(Math.random() * colors.length - 1) + 1];
 }
 
-cli
-  .option("-c, --config <path>", "asdf")
-  .option(
-    "-w, --workspaces <glob>",
-    "Filter workspaces that only match the specified pattern."
-  );
+cli.option(
+  "-w, --workspaces <glob>",
+  "Filters or finds workspaces that match the specified pattern."
+);
 cli
   .command("get")
   .description("Returns the available workspaces.")
