@@ -58,7 +58,7 @@ want to run._
 
 You can also use `jobsite` as a module.
 
-### `expandWorkspaces(wsGlobs)`
+### `async expandWorkspaces(wsGlobs)`
 
 > Expands the workspace globs into relative directory paths.
 
