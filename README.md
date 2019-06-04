@@ -1,6 +1,7 @@
 # jobsite
 
-> Tools for working with workspaces as defined by Yarn, Bolt, Lerna, etc.
+> Tools for working with [workspaces](https://yarnpkg.com/en/docs/workspaces) as
+> defined by Yarn, Bolt, Lerna, etc.
 
 ```sh
 npm i jobsite
