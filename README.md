@@ -66,7 +66,7 @@ You can also use `jobsite` as a module.
 const { expandWorkspaces } = require("jobsite");
 
 // ["packages/a", "packages/b"]
-expandWorkspaces("packages/*");
+expandWorkspaces("packages/*").then(console.log);
 ```
 
 ### `async function filterWorkspaces(pattern)`
@@ -77,7 +77,7 @@ expandWorkspaces("packages/*");
 const { filterWorkspaces } = require("jobsite");
 
 // ["packages/a"]
-filterWorkspaces("packages/a");
+filterWorkspaces("packages/a").then(console.log);
 ```
 
 ### `async function findWorkspaces(pattern)`
@@ -89,7 +89,7 @@ filterWorkspaces("packages/a");
 const { findWorkspaces } = require("jobsite");
 
 // ["packages/a", "packages/b"]
-findWorkspaces("packages/*");
+findWorkspaces("packages/*").then(console.log);
 ```
 
 ### `async function getWorkspaces()`
@@ -100,5 +100,5 @@ findWorkspaces("packages/*");
 const { getWorkspaces } = require("jobsite");
 
 // ["packages/*"]
-getWorkspaces();
+getWorkspaces().then(console.log);
 ```
