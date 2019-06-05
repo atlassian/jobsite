@@ -47,7 +47,9 @@ cli
     const cmds = [];
     for (const ws of await findWorkspaces(cli.workspaces)) {
       cmds.push({
-        command: `cd ${ws} && ${cmd} ${args.join(" ")}`,
+        // The "echo" is so that the command we run doesn't hang if listening
+        // for stdin.
+        command: `cd ${ws} && echo "" | ${cmd} ${args.join(" ")}`,
         name: ws,
         prefixColor: `${randomColor()}.inverse.bold`
       });
