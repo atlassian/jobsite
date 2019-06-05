@@ -43,7 +43,7 @@ $ jobsite get -w "packages/*"
 
 ### `run <cmd> [args...]`
 
-> Runs <cmd> in each workspace and passes in <options>.
+> Runs `<cmd>` in each workspace and passes in `<options>`.
 
 ```sh
 $ jobsite run ls
@@ -69,7 +69,7 @@ const { expandWorkspaces } = require("jobsite");
 expandWorkspaces("packages/*").then(console.log);
 ```
 
-### `async function filterWorkspaces(pattern)`
+### `async filterWorkspaces(pattern)`
 
 > Filters workspaces that match the specified pattern.
 
@@ -80,7 +80,7 @@ const { filterWorkspaces } = require("jobsite");
 filterWorkspaces("packages/a").then(console.log);
 ```
 
-### `async function findWorkspaces(pattern)`
+### `async findWorkspaces(pattern)`
 
 > Finds workspaces that match the given pattern. If no workspaces are defined,
 > the pattern is used to glob for directories.
@@ -92,7 +92,7 @@ const { findWorkspaces } = require("jobsite");
 findWorkspaces("packages/*").then(console.log);
 ```
 
-### `async function getWorkspaces()`
+### `async getWorkspaces()`
 
 > Returns an array of the defined workspaces or null if none are specified.
 
