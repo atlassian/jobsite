@@ -17,6 +17,11 @@ test("getWorkspaces() returns workspaces", async () => {
   expect(await getWorkspaces()).toEqual(["workspaces"]);
 });
 
+test("getWorkspaces() returns workspaces.packages", async () => {
+  await fs.outputFile(".workspacesrc", '{ "packages": ["workspaces"] }');
+  expect(await getWorkspaces()).toEqual(["workspaces"]);
+});
+
 test("getWorkspaces() returns bolt.workspaces", async () => {
   await fs.outputFile(".boltrc", '{ "workspaces": ["bolt"] }');
   expect(await getWorkspaces()).toEqual(["bolt"]);

@@ -33,7 +33,9 @@ async function findWorkspaces(pattern) {
 async function getWorkspaces() {
   let search;
   if ((search = await cosmiconfig("workspaces").search())) {
-    return search.config;
+    return Array.isArray(search.config)
+      ? search.config
+      : search.config.packages;
   }
   if ((search = await read("lerna.json"))) {
     return search.packages;
