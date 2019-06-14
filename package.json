@@ -18,6 +18,8 @@
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
+    "fs-extra": "^8.0.1",
+    "jest": "^24.8.0",
     "np": "^5.0.2"
   }
 }

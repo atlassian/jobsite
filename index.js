@@ -25,8 +25,14 @@ async function findWorkspaces(pattern) {
 
 // Returns an array of the defined workspaces or null if none are specified.
 async function getWorkspaces() {
-  const search = await cosmiconfig("workspaces").search();
-  return search ? search.config : null;
+  let search;
+  if ((search = await cosmiconfig("workspaces").search())) {
+    return search.config;
+  }
+  if ((search = await cosmiconfig("bolt").search())) {
+    return search.config.workspaces;
+  }
+  return null;
 }
 
 module.exports = {
