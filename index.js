@@ -1,6 +1,12 @@
 const cosmiconfig = require("cosmiconfig");
+const fs = require("fs-extra");
 const globby = require("globby");
 const minimatch = require("minimatch");
+
+// Returns the file contenst if it exists or null if not.
+async function read(file) {
+  return (await fs.exists(file)) ? await fs.readJson(file) : null;
+}
 
 // Expands the workspace globs into relative directory paths.
 async function expandWorkspaces(wsGlobs) {
@@ -28,6 +34,9 @@ async function getWorkspaces() {
   let search;
   if ((search = await cosmiconfig("workspaces").search())) {
     return search.config;
+  }
+  if ((search = await read("lerna.json"))) {
+    return search.packages;
   }
   if ((search = await cosmiconfig("bolt").search())) {
     return search.config.workspaces;
