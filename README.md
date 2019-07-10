@@ -11,15 +11,17 @@ npm i jobsite
 ## Usage
 
 ```sh
-Usage: jobsite [options] [command]
+Usage: bin [options] [command]
 
 Options:
-  -w, --workspaces <glob>  Filters or finds workspaces that match the specified pattern.
-  -h, --help               output usage information
+  -c, --concurrency <number>  The number of tasks to run at any given time.
+  -w, --workspaces <glob>     Filters or finds workspaces that match the specified pattern.
+  -h, --help                  output usage information
 
 Commands:
-  get                      Returns the available workspaces.
-  run <cmd> [args...]      Runs <cmd> in each workspace and passes in <options>.
+  get                         Returns the available workspaces.
+  run <cmd> [args...]         Runs <cmd> in each workspace and passes in <options>.
+  npm <cmd> [args...]         Runs the specified npm commands, if they exist.
 ```
 
 ## CLI
