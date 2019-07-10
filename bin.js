@@ -1,55 +1,30 @@
 #! /usr/bin/env node
 
-const chalk = require("chalk");
 const cli = require("commander");
-const concurrently = require("concurrently");
+const execa = require("execa");
+const listr = require("listr");
 const path = require("path");
 const { findWorkspaces } = require(".");
 
-const colors = [
-  "black",
-  "red",
-  "green",
-  "yellow",
-  "blue",
-  "magenta",
-  "cyan",
-  "white",
-  "gray",
-  "redBright",
-  "greenBright",
-  "yellowBright",
-  "blueBright",
-  "magentaBright",
-  "cyanBright",
-  "whiteBright"
-];
-
-function randomColor() {
-  return colors[Math.floor(Math.random() * colors.length - 1) + 1];
-}
-
 async function run(cmd, workspaces) {
-  const cmds = [];
-  for (const ws of workspaces) {
-    cmds.push({
-      // The "echo" is so that the command we run doesn't hang if listening
-      // for stdin.
-      command: `cd ${ws} && echo "" | ${cmd}`,
-      name: ws,
-      prefixColor: `${randomColor()}.inverse.bold`
-    });
-  }
-  if (cmds.length) {
-    try {
-      await concurrently(cmds);
-    } catch (e) {
-      console.error(e);
+  const concurrency = parseFloat(cli.concurrency);
+  const list = new listr(
+    workspaces.map(ws => ({
+      title: ws,
+      task: async () => {
+        const exec = execa.command(cmd, { cwd: ws });
+        return exec.stdout;
+      }
+    })),
+    {
+      concurrent: concurrency ? concurrency : true
     }
-  }
+  );
+  list.run().catch(console.error);
 }
 
 cli.option(
+  "-c, --concurrency <number>",
   "-w, --workspaces <glob>",
   "Filters or finds workspaces that match the specified pattern."
 );
