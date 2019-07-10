@@ -26,6 +26,9 @@ async function run(cmd, workspaces) {
 
 cli.option(
   "-c, --concurrency <number>",
+  "The number of tasks to run at any given time."
+);
+cli.option(
   "-w, --workspaces <glob>",
   "Filters or finds workspaces that match the specified pattern."
 );
