@@ -17,7 +17,8 @@ async function run(cmd, workspaces) {
       }
     })),
     {
-      concurrent: concurrency || true
+      concurrent: concurrency || true,
+      exitOnError: false
     }
   );
   list.run().catch(console.error);
