@@ -107,6 +107,11 @@ const { getWorkspacesPatterns } = require("jobsite");
 getWorkspacesPatterns().then(console.log);
 ```
 
+_Not only does it support Bolt, Lerna and Yarn definitions, it supports anything
+that [`cosmiconfig`])(https://github.com/davidtheclark/cosmiconfig) supports,
+too. This means that you can define a `.workspacesrc` file next to several repos
+if you wanted to, and manage them with jobsite!_
+
 ### `async getWorkspaces(glob: string | string[])`
 
 > Expands the workspace glob into an array of `Workspace` objects.
