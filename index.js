@@ -1,36 +1,64 @@
 const cosmiconfig = require("cosmiconfig");
 const fs = require("fs-extra");
 const globby = require("globby");
+const path = require("path");
 const minimatch = require("minimatch");
 
-// Returns the file contenst if it exists or null if not.
-async function read(file) {
+async function read(...paths) {
+  const file = path.join(...paths);
   return (await fs.exists(file)) ? await fs.readJson(file) : null;
 }
 
-// Expands the workspace globs into relative directory paths.
-async function expandWorkspaces(wsGlobs) {
-  return await globby(wsGlobs, {
+async function getWorkspaces(px) {
+  px = px || (await getWorkspacesPatterns());
+
+  if (!px) {
+    return [];
+  }
+
+  const wx = await globby(px, {
     expandDirectories: false,
     onlyDirectories: true
   });
+
+  return Promise.all(
+    wx.map(async ws => {
+      return {
+        path: ws,
+        package: await read(ws, "package.json")
+      };
+    })
+  );
 }
 
-// Filters workspaces that match the specified pattern.
-async function filterWorkspaces(pattern) {
-  const wsGlobs = await getWorkspaces();
-  const wsPaths = await expandWorkspaces(wsGlobs);
-  return pattern ? minimatch.match(wsPaths, pattern) : wsPaths;
+function filterByPackageName(glob) {
+  return ws => {
+    if (!glob || glob === true) {
+      return true;
+    }
+    if (!ws.package || !ws.package.name) {
+      return false;
+    }
+    return minimatch(ws.package.name, glob);
+  };
 }
 
-// Finds workspaces that match the given pattern. If no workspaces are defined, the pattern is used to glob for directories.
-async function findWorkspaces(pattern) {
-  const wsGlobs = await getWorkspaces();
-  return wsGlobs ? filterWorkspaces(pattern) : expandWorkspaces(pattern || ".");
+function filterByPackageScript(script) {
+  return ws => {
+    return ws.package && ws.package.scripts && ws.package.scripts[script];
+  };
 }
 
-// Returns an array of the defined workspaces or null if none are specified.
-async function getWorkspaces() {
+function filterByPath(glob) {
+  return ws => {
+    if (!glob || glob === true) {
+      return true;
+    }
+    return minimatch(ws.path, glob);
+  };
+}
+
+async function getWorkspacesPatterns() {
   let search;
   if ((search = await cosmiconfig("workspaces").search())) {
     return Array.isArray(search.config)
@@ -47,8 +75,9 @@ async function getWorkspaces() {
 }
 
 module.exports = {
-  expandWorkspaces,
-  filterWorkspaces,
-  findWorkspaces,
-  getWorkspaces
+  filterByPackageName,
+  filterByPackageScript,
+  filterByPath,
+  getWorkspaces,
+  getWorkspacesPatterns
 };

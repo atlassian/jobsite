@@ -11,11 +11,12 @@ npm i jobsite
 ## Usage
 
 ```sh
-Usage: bin [options] [command]
+Usage: jobsite [options] [command]
 
 Options:
-  -c, --concurrency <number>  The number of tasks to run at any given time.
-  -w, --workspaces <glob>     Filters or finds workspaces that match the specified pattern.
+  -c, --concurrency [number]  The number of tasks to run at any given time. If true, then as many threads as possible are used.
+  -p, --packages [glob]       Filters or finds workspaces that have a package.json and name that match the specified glob. If true, then it operates on all packages that have a name.
+  -w, --workspaces <glob>     Filters or finds workspaces that have a path that match the specified glob.
   -h, --help                  output usage information
 
 Commands:
@@ -23,16 +24,6 @@ Commands:
   run <cmd> [args...]         Runs <cmd> in each workspace and passes in <options>.
   npm <cmd> [args...]         Runs the specified npm commands, if they exist.
 ```
-
-## CLI
-
-Global options:
-
-- `-w, --workspaces <glob>` - Filters or finds workspaces that match the
-  specified pattern. If `workspaces` are defined in your project (i.e.
-  `package.json`), the pattern is used to filter them. If no `workspaces` are
-  defined, it is used to glob for directories relative to the `cwd`. The `cwd`
-  is used by default.
 
 ### `get`
 
@@ -50,57 +41,130 @@ $ jobsite get -w "packages/*"
 ```sh
 $ jobsite run ls
 $ jobsite run -- ls -la
+$ jobsite run -p "package*" -- ls -la
 $ jobsite run -w "packages/*" -- ls -la
 ```
 
 _It's recommended you use `--` so that you can pass arguments to the command you
 want to run._
 
+### `npm <cmd> [args...]`
+
+> Runs the NPM script specified by `<cmd>` in all workspaces that have the
+> specified script defined in their package.json.
+
+```sh
+$ jobsite npm test
+$ jobsite npm -p "package*" test
+$ jobsite npm -w "packages/*" test
+```
+
 ## API
 
 You can also use `jobsite` as a module.
 
-### `async expandWorkspaces(wsGlobs)`
+A workspace can be defined as:
 
-> Expands the workspace globs into relative directory paths.
-
-```js
-const { expandWorkspaces } = require("jobsite");
-
-// ["packages/a", "packages/b"]
-expandWorkspaces("packages/*").then(console.log);
+```ts
+type Workspace = {
+  path: string;
+  package: null | { [s: string]: string };
+};
 ```
 
-### `async filterWorkspaces(pattern)`
-
-> Filters workspaces that match the specified pattern.
+For the following examples, let's assume that we have the following workspaces:
 
 ```js
-const { filterWorkspaces } = require("jobsite");
-
-// ["packages/a"]
-filterWorkspaces("packages/a").then(console.log);
+const workspaces = [
+  { path: "packages/a", package: { name: "a", scripts: { test: "jest" } } },
+  { path: "packages/b", package: { name: "b", scripts: { test: "jest" } } }
+];
 ```
 
-### `async findWorkspaces(pattern)`
+And that we have a workspace definition in our `package.json` that looks like:
 
-> Finds workspaces that match the given pattern. If no workspaces are defined,
-> the pattern is used to glob for directories.
+```json
+{
+  "workspaces": ["packages/*"]
+}
+```
+
+Our directory structure looks like:
+
+- packages
+  - a/package.json
+  - b/package.json
+
+### `async getWorkspacesPatterns()`
+
+> Returns an array of the defined workspaces or null if none are specified. It
+> supports Bolt, Lerna and Yarn workspace definitions.
 
 ```js
-const { findWorkspaces } = require("jobsite");
+const { getWorkspacesPatterns } = require("jobsite");
 
-// ["packages/a", "packages/b"]
-findWorkspaces("packages/*").then(console.log);
+// ["packages/*"]
+getWorkspacesPatterns().then(console.log);
 ```
 
-### `async getWorkspaces()`
+### `async getWorkspaces(glob: string | string[])`
 
-> Returns an array of the defined workspaces or null if none are specified.
+> Expands the workspace glob into an array of `Workspace` objects.
+
+If you don't specify `glob`, it will use `getWorkspacePatterns()` to try and
+find workspaces.
 
 ```js
 const { getWorkspaces } = require("jobsite");
 
-// ["packages/*"]
+// Would return all packages.
 getWorkspaces().then(console.log);
+getWorkspacesPatterns("packages/*").then(console.log);
+```
+
+## Filters
+
+Filters are functions that return functions, than can be passed into
+`Array.prototype.filter`.
+
+### `filterByPackageName(glob: string)`
+
+> Returns a function that filters the workspaces by matching the glob to the
+> package name.
+
+```js
+const { filterByPackageName, getWorkspaces } = require("jobsite");
+
+// Only returns package "b".
+getWorkspaces()
+  .then(filterByPackageName("b"))
+  .then(console.log);
+```
+
+### `filterByPackageScript(script: string)`
+
+> Returns a function that filters the workspaces that only have the specified
+> script defined in their package.json, if one exists.
+
+```js
+const { filterByPackageScript, getWorkspaces } = require("jobsite");
+
+// Returns both packages.
+getWorkspaces()
+  .then(filterByPackageScript("test"))
+  .then(console.log);
+```
+
+### `filterByPath(glob: string)`
+
+> Returns a function that filters the workspaces by matching their path to the
+> package name.
+
+```js
+const { filterByPath, getWorkspaces } = require("jobsite");
+
+// Only returns package "b".
+getWorkspaces()
+  .then(filterByPath("*/b"))
+  .then(console.log);
 ```

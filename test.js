@@ -1,8 +1,9 @@
 const {
-  expandWorkspaces,
-  filterWorkspaces,
-  findWorkspaces,
-  getWorkspaces
+  filterByPackageName,
+  filterByPackageScript,
+  filterByPath,
+  getWorkspaces,
+  getWorkspacesPatterns
 } = require(".");
 const fs = require("fs-extra");
 
@@ -12,38 +13,69 @@ afterEach(async () => {
   await fs.remove("lerna.json");
 });
 
-test("getWorkspaces() returns workspaces", async () => {
-  await fs.outputFile(".workspacesrc", '["workspaces"]');
-  expect(await getWorkspaces()).toEqual(["workspaces"]);
+test("filterByPackageName()", () => {
+  const wx = [{ package: { name: "name1" } }, { package: { name: "name2" } }];
+  expect(wx.filter(filterByPackageName("name"))).toMatchObject([]);
+  expect(wx.filter(filterByPackageName("name*"))).toMatchObject(wx);
+  expect(wx.filter(filterByPackageName("name2"))).toMatchObject([wx[1]]);
 });
 
-test("getWorkspaces() returns workspaces.packages", async () => {
+test("filterByPath", () => {
+  const wx = [{ path: "name1" }, { path: "name2" }];
+  expect(wx.filter(filterByPath("name"))).toMatchObject([]);
+  expect(wx.filter(filterByPath("name*"))).toMatchObject(wx);
+  expect(wx.filter(filterByPath("name2"))).toMatchObject([wx[1]]);
+});
+
+test("filterByPackageScript", () => {
+  const wx = [
+    { package: { scripts: { name1: "ls" } } },
+    { package: { scripts: { name2: "ls" } } }
+  ];
+  expect(wx.filter(filterByPackageScript("name"))).toMatchObject([]);
+  expect(wx.filter(filterByPackageScript("name1"))).toMatchObject([wx[0]]);
+  expect(wx.filter(filterByPackageScript("name2"))).toMatchObject([wx[1]]);
+});
+
+test("getWorkspacesPatterns() returns workspaces", async () => {
+  await fs.outputFile(".workspacesrc", '["workspaces"]');
+  expect(await getWorkspacesPatterns()).toEqual(["workspaces"]);
+});
+
+test("getWorkspacesPatterns() returns workspaces.packages", async () => {
   await fs.outputFile(".workspacesrc", '{ "packages": ["workspaces"] }');
-  expect(await getWorkspaces()).toEqual(["workspaces"]);
+  expect(await getWorkspacesPatterns()).toEqual(["workspaces"]);
 });
 
-test("getWorkspaces() returns bolt.workspaces", async () => {
+test("getWorkspacesPatterns() returns bolt.workspaces", async () => {
   await fs.outputFile(".boltrc", '{ "workspaces": ["bolt"] }');
-  expect(await getWorkspaces()).toEqual(["bolt"]);
+  expect(await getWorkspacesPatterns()).toEqual(["bolt"]);
 });
 
-test("getWorkspaces() returns lerna.packages", async () => {
+test("getWorkspacesPatterns() returns lerna.packages", async () => {
   await fs.outputFile("lerna.json", '{ "packages": ["lerna"] }');
-  expect(await getWorkspaces()).toEqual(["lerna"]);
+  expect(await getWorkspacesPatterns()).toEqual(["lerna"]);
 });
 
-test("getWorkspaces() prefers workspaces -> lerna -> bolt", async () => {
+test("getWorkspacesPatterns() prefers workspaces -> lerna -> bolt", async () => {
   await fs.outputFile(".workspacesrc", '["workspaces"]');
   await fs.outputFile(".boltrc", '{ "workspaces": ["bolt"] }');
   await fs.outputFile("lerna.json", '{ "packages": ["lerna"] }');
-  expect(await getWorkspaces()).toEqual(["workspaces"]);
+  expect(await getWorkspacesPatterns()).toEqual(["workspaces"]);
 
   await fs.remove(".workspacesrc");
-  expect(await getWorkspaces()).toEqual(["lerna"]);
+  expect(await getWorkspacesPatterns()).toEqual(["lerna"]);
 
   await fs.remove("lerna.json");
-  expect(await getWorkspaces()).toEqual(["bolt"]);
+  expect(await getWorkspacesPatterns()).toEqual(["bolt"]);
 
   await fs.remove(".boltrc");
-  expect(await getWorkspaces()).toEqual(null);
+  expect(await getWorkspacesPatterns()).toEqual(null);
+});
+
+test("getWorkspaces()", async () => {
+  expect(await getWorkspaces([".git", "node_modules/fs-extra"])).toMatchObject([
+    { path: ".git", package: null },
+    { path: "node_modules/fs-extra", package: { name: "fs-extra" } }
+  ]);
 });
