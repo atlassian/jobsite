@@ -116,8 +116,8 @@ if you wanted to, and manage them with jobsite!_
 
 > Expands the workspace glob into an array of `Workspace` objects.
 
-If you don't specify `glob`, it will use `getWorkspacePatterns()` to try and
-find workspaces.
+If you don't specify `glob`, it will default to using `getWorkspacePatterns()`
+instead.
 
 ```js
 const { getWorkspaces } = require("jobsite");
