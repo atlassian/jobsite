@@ -119,15 +119,14 @@ if you wanted to, and manage them with jobsite!_
 If you don't specify `glob`, it will default to using `getWorkspacePatterns()`
 instead.
 
+These all do the same thing:
+
 ```js
 const { getWorkspaces } = require("jobsite");
 
-// Uses what's defined in the workspaces spec.
 getWorkspaces().then(console.log);
-
-// Uses the explicit "packages/*" instead of what's defined in the
-// workspaces spec.
 getWorkspaces("packages/*").then(console.log);
+getWorkspaces(["packages/*"]).then(console.log);
 ```
 
 ## Filters
