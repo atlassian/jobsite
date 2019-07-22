@@ -122,9 +122,12 @@ find workspaces.
 ```js
 const { getWorkspaces } = require("jobsite");
 
-// Would return all packages.
+// Uses what's defined in the workspaces spec.
 getWorkspaces().then(console.log);
-getWorkspacesPatterns("packages/*").then(console.log);
+
+// Uses the explicit "packages/*" instead of what's defined in the
+// workspaces spec.
+getWorkspaces("packages/*").then(console.log);
 ```
 
 ## Filters
